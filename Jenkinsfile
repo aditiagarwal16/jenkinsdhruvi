@@ -17,8 +17,7 @@ pipeline {
                     sh """
                         echo "Building project from source directory: ${SOURCE_DIR}" | tee -a ${LOG_FILE}
                         echo "Executing Maven build..." | tee -a ${LOG_FILE}
-                        # Actual Maven build command can go here, for example:
-                        # mvn clean install | tee -a ${LOG_FILE}
+                        # Actual Maven build command can go here
                     """
                 }
             }
