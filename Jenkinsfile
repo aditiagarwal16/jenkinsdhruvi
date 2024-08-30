@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         SOURCE_DIR = "${env.DIRECTORY_PATH ?: 'default/source/path'}"
+        LOG_FILE = "console_output.txt" // Log file to store the console output
     }
     stages {
         stage('Checkout') {
@@ -35,6 +36,28 @@ pipeline {
             post {
                 always {
                     echo "Tests completed."
+                    // Save the console output to a file
+                    script {
+                        writeFile file: "${LOG_FILE}", text: "${env.BUILD_LOG}"
+                    }
+                }
+                success {
+                    emailext(
+                        subject: "Tests Passed: ${currentBuild.fullDisplayName}",
+                        body: "The unit and integration tests have passed successfully. See attached log.",
+                        to: "pateldhruvi1279@gmail.com",
+                        attachmentsPattern: "${LOG_FILE}",
+                        attachLog: true
+                    )
+                }
+                failure {
+                    emailext(
+                        subject: "Tests Failed: ${currentBuild.fullDisplayName}",
+                        body: "The unit and/or integration tests have failed. Please check the attached logs.",
+                        to: "pateldhruvi1279@gmail.com",
+                        attachmentsPattern: "${LOG_FILE}",
+                        attachLog: true
+                    )
                 }
             }
         }
@@ -48,6 +71,26 @@ pipeline {
             steps {
                 echo "Conducting security scans using OWASP Dependency-Check..."
                 // Insert security scan steps here
+            }
+            post {
+                success {
+                    emailext(
+                        subject: "Security Scan Successful: ${currentBuild.fullDisplayName}",
+                        body: "Security scan completed successfully. Please find the logs attached.",
+                        to: "pateldhruvi1279@gmail.com",
+                        attachmentsPattern: "${LOG_FILE}",
+                        attachLog: true
+                    )
+                }
+                failure {
+                    emailext(
+                        subject: "Security Scan Failed: ${currentBuild.fullDisplayName}",
+                        body: "Security scan encountered issues. Review the logs for details.",
+                        to: "pateldhruvi1279@gmail.com",
+                        attachmentsPattern: "${LOG_FILE}",
+                        attachLog: true
+                    )
+                }
             }
         }
         stage('Deploy to Staging') {
@@ -72,10 +115,15 @@ pipeline {
             post {
                 always {
                     echo "Pipeline execution completed."
+                    // Save the console output to a file
+                    script {
+                        writeFile file: "${LOG_FILE}", text: "${env.BUILD_LOG}"
+                    }
                     emailext(
-                        subject: "Pipeline Execution: ${currentBuild.fullDisplayName}",
-                        body: "The pipeline has completed. Please find the attached logs.",
-                        to: 'pateldhruvi1279@gmail.com',
+                        subject: "Pipeline Execution Completed: ${currentBuild.fullDisplayName}",
+                        body: "The pipeline execution has completed. Please find the logs attached.",
+                        to: "pateldhruvi1279@gmail.com",
+                        attachmentsPattern: "${LOG_FILE}",
                         attachLog: true
                     )
                 }
