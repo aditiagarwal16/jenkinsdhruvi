@@ -35,9 +35,9 @@ pipeline {
             post {
                 always {
                     echo "Tests completed."
+                    // Collect and save the console log to a file
                     script {
-                        def logContent = currentBuild.rawBuild.getLog(1000).join('\n')
-                        writeFile file: 'blog.txt', text: logContent
+                        sh 'cat $WORKSPACE/console.log > blog.txt'
                     }
                 }
                 success {
@@ -114,9 +114,9 @@ pipeline {
             post {
                 always {
                     echo "Pipeline execution completed."
+                    // Collect and save the console log to a file
                     script {
-                        def logContent = currentBuild.rawBuild.getLog(1000).join('\n')
-                        writeFile file: 'blog.txt', text: logContent
+                        sh 'cat $WORKSPACE/console.log > blog.txt'
                     }
                     emailext(
                         subject: "Pipeline Completed: ${currentBuild.fullDisplayName}",
