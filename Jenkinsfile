@@ -2,7 +2,6 @@ pipeline {
     agent any
     environment {
         SOURCE_DIR = "${env.DIRECTORY_PATH ?: 'default/source/path'}"
-        LOG_FILE = "console_output.txt" // Log file to store the console output
     }
     stages {
         stage('Checkout') {
@@ -36,18 +35,18 @@ pipeline {
             post {
                 always {
                     echo "Tests completed."
-                    // Save the console output to a file
                     script {
-                        writeFile file: "${LOG_FILE}", text: "${env.BUILD_LOG}"
+                        def logContent = currentBuild.rawBuild.getLog(1000).join('\n')
+                        writeFile file: 'blog.txt', text: logContent
                     }
                 }
                 success {
                     emailext(
                         subject: "Tests Passed: ${currentBuild.fullDisplayName}",
-                        body: "The unit and integration tests have passed successfully. See attached log.",
+                        body: "The unit and integration tests have passed successfully. Logs are attached.",
                         to: "pateldhruvi1279@gmail.com",
-                        attachmentsPattern: "${LOG_FILE}",
-                        attachLog: true
+                        attachmentsPattern: 'blog.txt',
+                        attachLog: false
                     )
                 }
                 failure {
@@ -55,8 +54,8 @@ pipeline {
                         subject: "Tests Failed: ${currentBuild.fullDisplayName}",
                         body: "The unit and/or integration tests have failed. Please check the attached logs.",
                         to: "pateldhruvi1279@gmail.com",
-                        attachmentsPattern: "${LOG_FILE}",
-                        attachLog: true
+                        attachmentsPattern: 'blog.txt',
+                        attachLog: false
                     )
                 }
             }
@@ -78,8 +77,8 @@ pipeline {
                         subject: "Security Scan Successful: ${currentBuild.fullDisplayName}",
                         body: "Security scan completed successfully. Please find the logs attached.",
                         to: "pateldhruvi1279@gmail.com",
-                        attachmentsPattern: "${LOG_FILE}",
-                        attachLog: true
+                        attachmentsPattern: 'blog.txt',
+                        attachLog: false
                     )
                 }
                 failure {
@@ -87,8 +86,8 @@ pipeline {
                         subject: "Security Scan Failed: ${currentBuild.fullDisplayName}",
                         body: "Security scan encountered issues. Review the logs for details.",
                         to: "pateldhruvi1279@gmail.com",
-                        attachmentsPattern: "${LOG_FILE}",
-                        attachLog: true
+                        attachmentsPattern: 'blog.txt',
+                        attachLog: false
                     )
                 }
             }
@@ -115,16 +114,16 @@ pipeline {
             post {
                 always {
                     echo "Pipeline execution completed."
-                    // Save the console output to a file
                     script {
-                        writeFile file: "${LOG_FILE}", text: "${env.BUILD_LOG}"
+                        def logContent = currentBuild.rawBuild.getLog(1000).join('\n')
+                        writeFile file: 'blog.txt', text: logContent
                     }
                     emailext(
-                        subject: "Pipeline Execution Completed: ${currentBuild.fullDisplayName}",
-                        body: "The pipeline execution has completed. Please find the logs attached.",
+                        subject: "Pipeline Completed: ${currentBuild.fullDisplayName}",
+                        body: "The pipeline execution has completed. Please find the attached logs.",
                         to: "pateldhruvi1279@gmail.com",
-                        attachmentsPattern: "${LOG_FILE}",
-                        attachLog: true
+                        attachmentsPattern: 'blog.txt',
+                        attachLog: false
                     )
                 }
             }
