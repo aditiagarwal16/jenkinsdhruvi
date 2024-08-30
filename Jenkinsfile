@@ -72,9 +72,12 @@ pipeline {
             post {
                 always {
                     echo "Pipeline execution completed."
-                    mail to: 'pateldhruvi1279@gmail.com',
-                    subject: 'hi',
-                    body: 'success'
+                    emailext(
+                        subject: "Pipeline Execution: ${currentBuild.fullDisplayName}",
+                        body: "The pipeline has completed. Please find the attached logs.",
+                        to: 'pateldhruvi1279@gmail.com',
+                        attachLog: true
+                    )
                 }
             }
         }
