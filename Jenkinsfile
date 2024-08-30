@@ -36,22 +36,6 @@ pipeline {
                 always {
                     echo "Tests completed."
                 }
-                success {
-                    emailext(
-                        subject: "Tests Passed: ${currentBuild.fullDisplayName}",
-                        body: "The unit and integration tests have passed successfully.",
-                        to: "pateldhruvi1279@gmail.com",
-                        attachLog: true
-                    )
-                }
-                failure {
-                    emailext(
-                        subject: "Tests Failed: ${currentBuild.fullDisplayName}",
-                        body: "The unit and/or integration tests have failed. Please check the attached logs.",
-                        to: "pateldhruvi1279@gmail.com",
-                        attachLog: true
-                    )
-                }
             }
         }
         stage('Code Quality Analysis') {
@@ -64,24 +48,6 @@ pipeline {
             steps {
                 echo "Conducting security scans using OWASP Dependency-Check..."
                 // Insert security scan steps here
-            }
-            post {
-                success {
-                    emailext(
-                        subject: "Security Scan Successful: ${currentBuild.fullDisplayName}",
-                        body: "Security scan completed successfully. Please find the logs attached.",
-                        to: "pateldhruvi1279@gmail.com",
-                        attachLog: true
-                    )
-                }
-                failure {
-                    emailext(
-                        subject: "Security Scan Failed: ${currentBuild.fullDisplayName}",
-                        body: "Security scan encountered issues. Review the logs for details.",
-                        to: "pateldhruvi1279@gmail.com",
-                        attachLog: true
-                    )
-                }
             }
         }
         stage('Deploy to Staging') {
