@@ -1,81 +1,87 @@
 pipeline {
     agent any
-    environment {
-        SOURCE_DIR = "${env.DIRECTORY_PATH ?: 'default/source/path'}"
-    }
+
     stages {
-        stage('Checkout') {
-            steps {
-                echo "Checking out source code from the repository..."
-                // You can add actual checkout steps here if needed, e.g., git checkout
-            }
-        }
         stage('Build') {
             steps {
-                echo "Building project from source directory: ${SOURCE_DIR}"
-                echo "Executing Maven build..."
-                // Actual Maven build command can go here
+                echo "Starting the build process by fetching source code from ${env.DIRECTORY_PATH}"
+                echo "Compiling the source code and generating required artifacts"
+                echo "Using Maven for build automation"
             }
         }
-        stage('Testing') {
-            parallel {
-                stage('Unit Tests') {
-                    steps {
-                        echo "Running Unit Tests using JUnit..."
-                        // Insert actual JUnit test steps here
-                    }
-                }
-                stage('Integration Tests') {
-                    steps {
-                        echo "Running Integration Tests using Postman..."
-                        // Insert actual Postman test steps here
-                    }
-                }
+
+        stage('Testing - Unit and Integration') {
+            steps {
+                echo "Executing Unit Tests"
+                echo "Running Integration Tests"
+                echo "Utilizing JUnit for Unit Testing and Postman for Integration Testing"
             }
             post {
-                always {
-                    echo "Tests completed."
+                success {
+                    emailext body: "Unit and Integration Tests passed successfully. Please find the attached test logs.",
+                             to: 'pateldhruvi1279@gmail.com',
+                             subject: "Success: Unit and Integration Tests",
+                             attachmentsPattern: 'test.log',
+                             attachLog: true
+                }
+                failure {
+                    emailext body: "Unit and Integration Tests failed. Attached are the test logs.",
+                             to: 'pateldhruvi1279@gmail.com',
+                             subject: "Failure: Unit and Integration Tests",
+                             attachmentsPattern: 'test.log',
+                             attachLog: true
                 }
             }
         }
+
         stage('Code Quality Analysis') {
             steps {
-                echo "Performing code quality analysis using SonarQube..."
-                // Insert SonarQube analysis steps here
+                echo "Running Code Analysis"
+                echo "Using SonarQube Scanner for Jenkins"
             }
         }
-        stage('Security Scanning') {
+
+        stage('Security Vulnerability Scan') {
             steps {
-                echo "Conducting security scans using OWASP Dependency-Check..."
-                // Insert security scan steps here
-            }
-        }
-        stage('Deploy to Staging') {
-            steps {
-                echo "Deploying the application to the staging environment..."
-                echo "Using AWS for deployment..."
-                // Insert AWS deployment steps here
-            }
-        }
-        stage('Staging Integration Tests') {
-            steps {
-                echo "Executing integration tests on the staging environment..."
-                // Insert staging integration test steps here
-            }
-        }
-        stage('Deploy to Production') {
-            steps {
-                echo "Deploying the application to production..."
-                echo "Final deployment using AWS..."
-                // Insert final production deployment steps here
+                echo "Performing security vulnerability scan"
+                echo "Using OWASP Dependency-Check plugin"
             }
             post {
-                always {
-                    echo "Pipeline execution completed."
-                    mail to: 'pateldhruvi1279@gmail.com',
-                    subject: 'hi',
-                    body: 'success'
+                success {
+                    emailext body: "Security Scan completed successfully. Please find the attached logs.",
+                             to: 'pateldhruvi1279@gmail.com',
+                             subject: "Success: Security Scan",
+                             attachmentsPattern: 'test.log',
+                             attachLog: true
                 }
+                failure {
+                    emailext body: "Security Scan failed. Attached are the logs.",
+                             to: 'pateldhruvi1279@gmail.com',
+                             subject: "Failure: Security Scan",
+                             attachmentsPattern: 'test.log',
+                             attachLog: true
+                }
+            }
+        }
+
+        stage('Staging Deployment') {
+            steps {
+                echo "Deploying the application to the staging environment"
+                echo "Using AWS for deployment"
+            }
+        }
+
+        stage('Staging Environment Tests') {
+            steps {
+                echo "Executing integration tests on the staging environment"
+                echo "Using JUnit for testing"
+            }
+        }
+
+        stage('Production Deployment') {
+            steps {
+                echo "Deploying the application to the production environment"
+                echo "Utilizing AWS for deployment"
             }
         }
     }
